@@ -124,7 +124,33 @@ trim_trailing_whitespace = true
 insert_final_newline = true
 
 
-
-
-
 Sequelize (Utilize PostgreSQL ou MySQL);
+
+instalar sequelize
+yarn add sequelize
+yarn add sequelize-cli -D
+
+criar o arquivo .sequelizerc com o conteudo abaixo(é necessário criar a estrutura de pastas):
+const { resolve } = require('path');
+
+module.exports = {
+   config: resolve(__dirname, 'src', 'config', 'database.js'),
+   'models-path': resolve(__dirname, 'src', 'app', 'models'),
+   'migrations-path': resolve(__dirname, 'src', 'database', 'migrations'),
+   'seeders-path': resolve(__dirname, 'src', 'database', 'seeds')
+}
+
+para bancos postgres é necessário instalar as dependencias pg e pg-hstore
+
+yarn add pg pg-hstore
+
+migrations:
+yarn sequelize migration:create --name=create-users
+
+apos definição doas campos da tabela no arquivo de migrations, rodar o comando:
+yarn sequelize db:migrate
+
+
+
+
+
