@@ -150,6 +150,8 @@ yarn sequelize migration:create --name=create-users
 apos definição doas campos da tabela no arquivo de migrations, rodar o comando:
 yarn sequelize db:migrate
 
+yarn sequelize db:seed:all
+
 
 
 
