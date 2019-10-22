@@ -152,6 +152,10 @@ yarn sequelize db:migrate
 
 yarn sequelize db:seed:all
 
+Subir instancia do MongoDB no Docker:
+docker run --name mongobarber -p 27017:27017 -d -t mongo
+testar localhost:27017
+
 
 
 
