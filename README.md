@@ -1,4 +1,4 @@
-# GynPoint
+# GyMPoint
 desafio BootCamp
 
 
