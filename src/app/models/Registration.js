@@ -1,4 +1,5 @@
 import Sequelize, { Model } from 'sequelize';
+import { isBefore, isAfter, format } from 'date-fns';
 
 class Registration extends Model {
    static init(sequelize) {
@@ -13,12 +14,6 @@ class Registration extends Model {
          }
       );
 
-      /* this.addHook('beforeSave', async user => {
-         if (user.password) {
-            user.password_hash = await bcrypt.hash(user.password, 8);
-         }
-      });
-*/
       return this;
    }
 
@@ -27,10 +22,7 @@ class Registration extends Model {
          foreignKey: 'student_id',
          as: 'student',
       });
-      this.belongsTo(models.Plan, {
-         foreignKey: 'plan_id',
-         as: 'plan',
-      });
+      this.belongsTo(models.Plan, { foreignKey: 'plan_id', as: 'plan' });
    }
 }
 

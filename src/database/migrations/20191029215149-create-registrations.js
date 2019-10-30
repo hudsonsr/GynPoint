@@ -1,6 +1,6 @@
 module.exports = {
    up: (queryInterface, Sequelize) => {
-      return queryInterface.createTable('regitrations', {
+      return queryInterface.createTable('registrations', {
          id: {
             type: Sequelize.INTEGER,
             allowNull: false,
@@ -28,6 +28,10 @@ module.exports = {
          end_date: {
             type: Sequelize.DATE,
             allowNull: false,
+         },
+         price: {
+            type: Sequelize.FLOAT,
+            AlowNull: false,
          },
          created_at: {
             type: Sequelize.DATE,
