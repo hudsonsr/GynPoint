@@ -85,11 +85,25 @@ class RegistrationController {
    }
 
    async update(req, res) {
-      return res.json({ route: 'update' });
+      const { id } = req.params;
+
+      const registration = await Registration.findByPk(id);
+
+      if (!registration) {
+         return res.status(400).json({ error: 'Id does not exists' });
+      }
+
+      await registration.update(req.body);
+
+      return res.json(registration);
    }
 
    async delete(req, res) {
-      return res.json({ route: 'delete' });
+      const { id } = req.params;
+
+      const deletedRows = await Registration.destroy(id);
+
+      return res.json({ msg: `${deletedRows} row(s) deleted` });
    }
 }
 
