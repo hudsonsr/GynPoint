@@ -1,9 +1,12 @@
 import * as Yup from 'yup';
 import { Op } from 'sequelize';
-import { format, parseISO, addMonths } from 'date-fns';
+import { format, parseISO, addMonths, endOfDay, startOfDay } from 'date-fns';
+import pt from 'date-fns/locale/pt';
 import Registration from '../models/Registration';
 import Student from '../models/Student';
 import Plan from '../models/Plan';
+
+import Mail from '../../lib/Mail';
 
 class RegistrationController {
    async show(req, res) {
@@ -34,10 +37,14 @@ class RegistrationController {
       }
 
       const { student_id, plan_id } = req.body;
-      const start_date = format(
-         parseISO(req.body.start_date),
-         "yyyy-MM-dd'T00:00:00-03:00'"
-      );
+
+      const start_date = startOfDay(parseISO(req.body.start_date));
+
+      const student = await Student.findByPk(student_id);
+
+      if (!student) {
+         return res.status(401).json({ error: 'Student not exists' });
+      }
 
       const plan = await Plan.findByPk(plan_id);
 
@@ -46,10 +53,9 @@ class RegistrationController {
       }
 
       const price = plan.duration * plan.price;
-      const end_date = format(
-         addMonths(parseISO(start_date), plan.duration),
-         "yyyy-MM-dd'T23:59:59-03:00'"
-      );
+      const end_date = endOfDay(addMonths(start_date, plan.duration));
+
+      console.log(end_date);
 
       const registrationExists = await Registration.findOne({
          where: {
@@ -68,8 +74,9 @@ class RegistrationController {
       });
 
       if (registrationExists) {
-         return res.status(400).json(registrationExists);
-         // .json({ error: 'Registration exists in this period' });
+         return res
+            .status(400)
+            .json({ error: 'Registration exists in this period' });
       }
 
       const registration = await Registration.create({
@@ -80,6 +87,28 @@ class RegistrationController {
          price,
       });
 
+      if (!registration) {
+         return res.status(400).json({ erro: 'Registration Failed' });
+      }
+
+      const formattedDateStart = format(start_date, 'dd/MM/yyyy', {
+         locale: pt,
+      });
+
+      const formattedDateEnd = format(end_date, 'dd/MM/yyyy', {
+         locale: pt,
+      });
+
+      await Mail.sendMail({
+         to: `${student.name} <${student.email}>`,
+         subject: 'Matrícula Realizada',
+         template: 'cancelation',
+         context: {
+            student: student.name,
+            start_date: formattedDateStart,
+            end_date: formattedDateEnd,
+         },
+      });
       // return res.json({ student_id, start_date, plan_id, end_date, price });
       return res.json(registration);
    }

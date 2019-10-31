@@ -19,6 +19,7 @@ routes.use(authMiddleware); // pegatoken de autenticação
 
 routes.post('/users', UserController.store);
 routes.put('/users', UserController.update);
+routes.get('/students', StudentController.show);
 routes.post('/students', StudentController.store);
 routes.put('/students/:id', StudentController.update);
 
@@ -32,7 +33,7 @@ routes.put('/registrations/:id', RegistrationController.update);
 routes.get('/registrations', RegistrationController.show);
 routes.delete('/registrations/:id', RegistrationController.delete);
 
-routes.get('/students/:id/checkins', CheckinController.update);
+routes.get('/students/:id/checkins', CheckinController.show);
 routes.post('/students/:id/checkins', CheckinController.store);
 
 export default routes;
