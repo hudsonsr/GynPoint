@@ -5,7 +5,7 @@ desafio BootCamp
 Instalações
 Sucrase + Nodemon;
 
-yarn add sucrase nodemon -D
+-> yarn add sucrase nodemon -D
 
 
 
@@ -43,8 +43,9 @@ launch.json:
 
 ESLint + Prettier + EditorConfig;
 
-yarn add eslint -D
-yarn eslint --init
+-> yarn add eslint -D
+-> yarn eslint --init
+
 { Escolhas:
 yarn run v1.19.1
 $ /home/hudson/projetosJS/GynPoint/node_modules/.bin/eslint --init
@@ -127,8 +128,8 @@ insert_final_newline = true
 Sequelize (Utilize PostgreSQL ou MySQL);
 
 instalar sequelize
-yarn add sequelize
-yarn add sequelize-cli -D
+-> yarn add sequelize
+-> yarn add sequelize-cli -D
 
 criar o arquivo .sequelizerc com o conteudo abaixo(é necessário criar a estrutura de pastas):
 const { resolve } = require('path');
@@ -142,17 +143,21 @@ module.exports = {
 
 para bancos postgres é necessário instalar as dependencias pg e pg-hstore
 
-yarn add pg pg-hstore
+--> yarn add pg pg-hstore
 
 migrations:
-yarn sequelize migration:create --name=create-users
+-> yarn sequelize migration:create --name=create-users
 
 apos definição doas campos da tabela no arquivo de migrations, rodar o comando:
-yarn sequelize db:migrate
+-> yarn sequelize db:migrate
 
-yarn sequelize db:seed:all
+-> yarn sequelize db:seed:all
 
+Instalação REDIS
+-> docker run --name redisgympoint -p 6379:6379 -d -t redis:alpine
 
+Instalar BeeQueue para implementar filas (Verifica tb queue)
+-> yarn add bee-queue
 
 
 

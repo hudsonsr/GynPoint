@@ -1,20 +1,21 @@
 import * as Yup from 'yup';
 import { Op } from 'sequelize';
-import { format, parseISO, addMonths, endOfDay, startOfDay } from 'date-fns';
-import pt from 'date-fns/locale/pt';
+import { parseISO, addMonths, endOfDay, startOfDay } from 'date-fns';
 import Registration from '../models/Registration';
 import Student from '../models/Student';
 import Plan from '../models/Plan';
 
-import Mail from '../../lib/Mail';
+import CancellationMail from '../jobs/CancellationMail';
+import RegistrationMail from '../jobs/RegistrationMail';
+import Queue from '../../lib/Queue';
 
 class RegistrationController {
    async show(req, res) {
       const registration = await Registration.findAll({
-         attributes: ['start_date', 'end_date', 'price'],
+         attributes: ['id', 'start_date', 'end_date', 'price'],
          include: [
-            { model: Student, as: 'student', attributes: ['name'] },
-            { model: Plan, as: 'plan', attributes: ['title'] },
+            { model: Student, as: 'student', attributes: ['id', 'name'] },
+            { model: Plan, as: 'plan', attributes: ['id', 'title'] },
          ],
       });
 
@@ -55,18 +56,16 @@ class RegistrationController {
       const price = plan.duration * plan.price;
       const end_date = endOfDay(addMonths(start_date, plan.duration));
 
-      console.log(end_date);
-
       const registrationExists = await Registration.findOne({
          where: {
             student_id,
             [Op.and]: [
                {
                   start_date: {
-                     [Op.gte]: start_date,
+                     [Op.lte]: start_date,
                   },
                   end_date: {
-                     [Op.lte]: end_date,
+                     [Op.gte]: end_date,
                   },
                },
             ],
@@ -91,23 +90,10 @@ class RegistrationController {
          return res.status(400).json({ erro: 'Registration Failed' });
       }
 
-      const formattedDateStart = format(start_date, 'dd/MM/yyyy', {
-         locale: pt,
-      });
-
-      const formattedDateEnd = format(end_date, 'dd/MM/yyyy', {
-         locale: pt,
-      });
-
-      await Mail.sendMail({
-         to: `${student.name} <${student.email}>`,
-         subject: 'Matrícula Realizada',
-         template: 'cancelation',
-         context: {
-            student: student.name,
-            start_date: formattedDateStart,
-            end_date: formattedDateEnd,
-         },
+      Queue.add(RegistrationMail.key, {
+         student,
+         start_date,
+         end_date,
       });
       // return res.json({ student_id, start_date, plan_id, end_date, price });
       return res.json(registration);
@@ -130,7 +116,34 @@ class RegistrationController {
    async delete(req, res) {
       const { id } = req.params;
 
-      const deletedRows = await Registration.destroy(id);
+      const registrationDatas = await Registration.findOne({
+         where: {
+            id,
+         },
+         include: [
+            {
+               model: Student,
+               as: 'student',
+               attributes: ['id', 'name', 'email'],
+            },
+            {
+               model: Plan,
+               as: 'plan',
+               attributes: ['id', 'title'],
+            },
+         ],
+         attributes: ['start_date', 'end_date', 'price'],
+      });
+
+      const deletedRows = await Registration.destroy({
+         where: { id },
+      });
+
+      if (deletedRows > 0) {
+         Queue.add(CancellationMail.key, {
+            registrationDatas,
+         });
+      }
 
       return res.json({ msg: `${deletedRows} row(s) deleted` });
    }

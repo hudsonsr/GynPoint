@@ -13,7 +13,9 @@ class CheckinController {
          attributes: ['created_at'],
          limit: 20,
          offset: (page - 1) * 20,
-         include: [{ model: Student, as: 'student', attributes: ['name'] }],
+         include: [
+            { model: Student, as: 'student', attributes: ['id', 'name'] },
+         ],
       });
 
       if (!checkin) {
@@ -40,10 +42,10 @@ class CheckinController {
             [Op.and]: [
                {
                   start_date: {
-                     [Op.gte]: startOfDay(new Date()),
+                     [Op.lte]: startOfDay(new Date()),
                   },
                   end_date: {
-                     [Op.lte]: endOfDay(new Date()),
+                     [Op.gte]: endOfDay(new Date()),
                   },
                },
             ],
