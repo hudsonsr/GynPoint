@@ -6,6 +6,7 @@ import StudentController from './app/controllers/StudentController';
 import PlanController from './app/controllers/PlanController';
 import RegistrationController from './app/controllers/RegistrationController';
 import CheckinController from './app/controllers/CheckinController';
+import HelpOrderController from './app/controllers/HelpOrderController';
 
 import authMiddleware from './app/middlewares/auth';
 
@@ -13,6 +14,8 @@ const routes = new Router();
 
 // Rotas sem token
 routes.post('/sessions', SessionController.store);
+routes.post('/students/:student_id/help-orders', HelpOrderController.store);
+routes.get('/students/:student_id/help-orders', HelpOrderController.index);
 
 // Rotas com token
 routes.use(authMiddleware); // pegatoken de autenticação
@@ -35,5 +38,9 @@ routes.delete('/registrations/:id', RegistrationController.delete);
 
 routes.get('/students/:id/checkins', CheckinController.show);
 routes.post('/students/:id/checkins', CheckinController.store);
+
+routes.get('/help-orders', HelpOrderController.show);
+routes.put('help-orders/:id/answer', HelpOrderController.update);
+routes.delete('help-orders/:id', HelpOrderController.update);
 
 export default routes;
