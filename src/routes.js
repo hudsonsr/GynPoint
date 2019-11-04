@@ -40,7 +40,7 @@ routes.get('/students/:id/checkins', CheckinController.show);
 routes.post('/students/:id/checkins', CheckinController.store);
 
 routes.get('/help-orders', HelpOrderController.show);
-routes.put('help-orders/:id/answer', HelpOrderController.update);
-routes.delete('help-orders/:id', HelpOrderController.update);
+routes.put('/help-orders/:id/answer', HelpOrderController.update);
+routes.delete('/help-orders/:id', HelpOrderController.update);
 
 export default routes;

@@ -111,13 +111,16 @@ class HelpOrderController {
          return res.status(400).json({ error: 'Id does not exists' });
       }
 
-      await helpOrder.update(req.body);
-
-      Queue.add(HelpOrderMail.key, {
-         HelpOrder,
+      await helpOrder.update({
+         answer: req.body.answer,
+         answer_at: new Date(),
       });
 
-      return res.json(HelpOrder);
+      Queue.add(HelpOrderMail.key, {
+         helpOrder,
+      });
+
+      return res.json(helpOrder);
    }
 
    async delete(req, res) {
