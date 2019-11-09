@@ -1,4 +1,4 @@
-import Bee from 'bee-queue';
+import BullQueue from 'bull';
 import CancellationMail from '../app/jobs/CancellationMail';
 import RegistrationMail from '../app/jobs/RegistrationMail';
 import HelpOrderMail from '../app/jobs/HelpOrderMail';
@@ -16,22 +16,27 @@ class Queue {
    init() {
       jobs.forEach(({ key, handle }) => {
          this.queues[key] = {
-            bee: new Bee(key, {
+            bull: new BullQueue(key, {
                redis: redisConfig,
             }),
+            name: key,
             handle,
          };
       });
    }
 
    add(queue, job) {
-      return this.queues[queue].bee.createJob(job).save();
+      return this.queues[queue].bull.add(job);
    }
 
    processQueue() {
       jobs.forEach(job => {
-         const { bee, handle } = this.queues[job.key];
-         bee.process(handle);
+         const { bull, name, handle } = this.queues[job.key];
+         bull.process(handle);
+         bull.on('failed', (job, err) => {
+            console.log(`Job failed: ${name}, ${JSON.stringify(job.data)}`);
+            console.log(err);
+         });
       });
    }
 }
