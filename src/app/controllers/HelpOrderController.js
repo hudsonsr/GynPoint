@@ -1,9 +1,6 @@
 import * as Yup from 'yup';
-import { Op } from 'sequelize';
-import { parseISO, addMonths, endOfDay, startOfDay } from 'date-fns';
 import HelpOrder from '../models/HelpOrder';
 import Student from '../models/Student';
-import Plan from '../models/Plan';
 
 import HelpOrderMail from '../jobs/HelpOrderMail';
 import Queue from '../../lib/Queue';
@@ -88,36 +85,48 @@ class HelpOrderController {
    }
 
    async update(req, res) {
-      const { id } = req.params;
-
-      const helpOrder = await HelpOrder.findOne(
-         {
-            where: {
-               id,
-            },
-         },
-         {
-            include: [
-               {
-                  model: Student,
-                  as: 'student',
-                  attributes: ['id', 'name', 'email'],
-               },
-            ],
-         }
-      );
-
-      if (!HelpOrder) {
-         return res.status(400).json({ error: 'Id does not exists' });
-      }
-
-      await helpOrder.update(req.body);
-
-      Queue.add(HelpOrderMail.key, {
-         HelpOrder,
+      const schema = Yup.object().shape({
+         answer: Yup.string().required(),
       });
 
-      return res.json(HelpOrder);
+      if (!(await schema.isValid(req.body))) {
+         return res.status(400).json({ error: 'Validation fails' });
+      }
+      const { id } = req.params;
+
+      const helpOrder = await HelpOrder.findOne({
+         where: {
+            id,
+         },
+
+         include: [
+            {
+               model: Student,
+               as: 'student',
+               attributes: ['id', 'name', 'email'],
+            },
+         ],
+      });
+
+      if (!helpOrder) {
+         return res.status(400).json({ error: 'Id does not exists' });
+      }
+      // console.dir(helpOrder);
+
+      if (helpOrder.answer_at) {
+         return res.status(400).json({ error: 'Answer already exists' });
+      }
+
+      await helpOrder.update({
+         answer: req.body.answer,
+         answer_at: new Date(),
+      });
+
+      Queue.add(HelpOrderMail.key, {
+         helpOrder,
+      });
+
+      return res.json(helpOrder);
    }
 
    async delete(req, res) {
