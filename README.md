@@ -127,6 +127,10 @@ insert_final_newline = true
 
 Sequelize (Utilize PostgreSQL ou MySQL);
 
+Instalação POSTGRESS
+-> docker run --name postgres -e POSTGRES_PASSWORD=gostack -p 5432:5432 -d postgres:11
+
+
 instalar sequelize
 -> yarn add sequelize
 -> yarn add sequelize-cli -D
@@ -159,5 +163,4 @@ Instalação REDIS
 Instalar BeeQueue para implementar filas (Verifica tb queue)
 -> yarn add bee-queue
 
-
-
+Subir instancia do MongoDB no Docker: docker run --name mongobarber -p 27017:27017 -d -t mongo testar localhost:27017
